@@ -156,6 +156,24 @@ func (s *Store) Add(m *Movie) (created bool, err error) {
 	return true, nil
 }
 
+// NeedingReelMedia — фильмы с рилсом, но без скачанного видео (для бэкфилла).
+func (s *Store) NeedingReelMedia() ([]*Movie, error) {
+	rows, err := s.db.Query(`SELECT ` + cols + ` FROM movies WHERE reel_url<>'' AND reel_video='' ORDER BY id`)
+	if err != nil {
+		return nil, fmt.Errorf("store: needing media: %w", err)
+	}
+	defer rows.Close()
+	var out []*Movie
+	for rows.Next() {
+		m, err := scan(rows)
+		if err != nil {
+			return nil, fmt.Errorf("store: needing media scan: %w", err)
+		}
+		out = append(out, m)
+	}
+	return out, rows.Err()
+}
+
 // SetReelMedia сохраняет имена скачанных файлов рилса.
 func (s *Store) SetReelMedia(id int64, video, thumb string) error {
 	_, err := s.db.Exec(`UPDATE movies SET reel_video=?, reel_thumb=? WHERE id=?`, video, thumb, id)

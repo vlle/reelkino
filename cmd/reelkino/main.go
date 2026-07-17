@@ -120,8 +120,37 @@ func main() {
 		log.Printf("setMyCommands: %v", err)
 	}
 
+	go a.backfillReelMedia()
+
 	log.Printf("poll loop, whitelist: %d id", len(allowed))
 	a.pollLoop()
+}
+
+// backfillReelMedia докачивает рилсы фильмов, сохранённых до появления
+// скачивания (или у которых загрузка не удалась). Последовательно,
+// чтобы не плодить параллельные yt-dlp.
+func (a *app) backfillReelMedia() {
+	movies, err := a.st.NeedingReelMedia()
+	if err != nil {
+		log.Printf("backfill: %v", err)
+		return
+	}
+	if len(movies) == 0 {
+		return
+	}
+	log.Printf("backfill: %d рилсов без видео", len(movies))
+	for _, m := range movies {
+		video, thumb, err := a.media.Download(m.ReelURL, strconv.FormatInt(m.ID, 10))
+		if err != nil {
+			log.Printf("backfill %d (%s): %v", m.ID, m.Title, err)
+			continue
+		}
+		if err := a.st.SetReelMedia(m.ID, video, thumb); err != nil {
+			log.Printf("backfill %d: save: %v", m.ID, err)
+			continue
+		}
+		log.Printf("backfill %d (%s): ok", m.ID, m.Title)
+	}
 }
 
 func (a *app) pollLoop() {
