@@ -21,15 +21,24 @@ const (
 )
 
 type Client struct {
-	bin string
-	dir string
+	bin     string
+	dir     string
+	cookies string // netscape cookies.txt; инстаграм без логина режет датацентровые IP
 }
 
-func New(bin, dir string) (*Client, error) {
+func New(bin, dir, cookies string) (*Client, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("media: mkdir %s: %w", dir, err)
 	}
-	return &Client{bin: bin, dir: dir}, nil
+	return &Client{bin: bin, dir: dir, cookies: cookies}, nil
+}
+
+func (c *Client) args(rest ...string) []string {
+	base := []string{"--no-playlist", "--playlist-items", "1", "--no-warnings"}
+	if c.cookies != "" {
+		base = append(base, "--cookies", c.cookies)
+	}
+	return append(base, rest...)
 }
 
 // Dir — каталог со скачанными файлами.
@@ -45,9 +54,7 @@ type Info struct {
 func (c *Client) Probe(url string) (*Info, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), probeTimeout)
 	defer cancel()
-	out, err := exec.CommandContext(ctx, c.bin,
-		"-j", "--no-playlist", "--playlist-items", "1", "--no-warnings", url,
-	).Output()
+	out, err := exec.CommandContext(ctx, c.bin, c.args("-j", url)...).Output()
 	if err != nil {
 		return nil, fmt.Errorf("media: probe: %s", execErr(err))
 	}
@@ -63,14 +70,13 @@ func (c *Client) Probe(url string) (*Info, error) {
 func (c *Client) Download(url, base string) (video, thumb string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
 	defer cancel()
-	out, err := exec.CommandContext(ctx, c.bin,
-		"--no-playlist", "--playlist-items", "1", "--no-warnings",
+	out, err := exec.CommandContext(ctx, c.bin, c.args(
 		"-f", "mp4/best",
 		"--max-filesize", maxFilesize,
 		"--write-thumbnail",
 		"-o", filepath.Join(c.dir, base+".%(ext)s"),
 		url,
-	).CombinedOutput()
+	)...).CombinedOutput()
 	if err != nil {
 		return "", "", fmt.Errorf("media: download: %v: %s", err, tail(string(out)))
 	}

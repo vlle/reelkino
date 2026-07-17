@@ -44,7 +44,7 @@ ssh "${SSH_OPTS[@]}" "$HOST" '
   fi
   mkdir -p /var/lib/reelkino/media
   # долить новые ключи в существующий env
-  for kv in "ZEN_API_KEY=" "ZEN_MODEL=" "MEDIA_DIR=/var/lib/reelkino/media" "YTDLP_PATH=/usr/local/bin/yt-dlp"; do
+  for kv in "ZEN_API_KEY=" "ZEN_MODEL=" "MEDIA_DIR=/var/lib/reelkino/media" "YTDLP_PATH=/usr/local/bin/yt-dlp" "YTDLP_COOKIES="; do
     grep -q "^${kv%%=*}=" /etc/reelkino/reelkino.env || echo "$kv" >> /etc/reelkino/reelkino.env
   done
   systemctl daemon-reload

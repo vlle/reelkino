@@ -73,6 +73,7 @@ func main() {
 	appURL := envDefault("WEBAPP_URL", "https://kino.vlle.ru/")
 	mediaDir := envDefault("MEDIA_DIR", "media")
 	ytdlp := envDefault("YTDLP_PATH", "yt-dlp")
+	cookies := os.Getenv("YTDLP_COOKIES")
 
 	st, err := store.Open(dbPath)
 	if err != nil {
@@ -80,7 +81,7 @@ func main() {
 	}
 	defer st.Close()
 
-	md, err := media.New(ytdlp, mediaDir)
+	md, err := media.New(ytdlp, mediaDir, cookies)
 	if err != nil {
 		log.Fatal(err)
 	}
