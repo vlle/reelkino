@@ -1,0 +1,14 @@
+[Unit]
+Description=reelkino - movies-from-reels bot + Mini App
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/etc/reelkino/reelkino.env
+ExecStart=/usr/local/bin/reelkino
+WorkingDirectory=/var/lib/reelkino
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

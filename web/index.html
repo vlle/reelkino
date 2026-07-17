@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>reelkino</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="film-edge" aria-hidden="true"></div>
+  <div class="top-row">
+    <h1>reelkino</h1>
+    <span id="count" class="count"></span>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" role="tab" data-tab="want">Хочу</button>
+    <button class="tab" role="tab" data-tab="watched">Посмотрел</button>
+  </nav>
+  <input id="search" class="search" type="search" placeholder="Поиск по названию" autocomplete="off">
+</header>
+
+<main id="grid" class="grid" aria-live="polite"></main>
+
+<div id="empty" class="empty" hidden>
+  <p class="empty-title">Пока пусто</p>
+  <p>Скинь боту ссылку на рилс — он сам определит фильм, и тот появится здесь.</p>
+</div>
+
+<div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
+<section id="sheet" class="sheet" hidden aria-modal="true" role="dialog">
+  <div class="sheet-grip" aria-hidden="true"></div>
+  <div class="sheet-body">
+    <img id="sheet-poster" class="sheet-poster" alt="">
+    <div class="sheet-info">
+      <h2 id="sheet-title"></h2>
+      <p id="sheet-meta" class="sheet-meta"></p>
+      <p id="sheet-ratings" class="ratings"></p>
+      <p id="sheet-comment" class="sheet-comment"></p>
+    </div>
+  </div>
+  <div id="sheet-reel" class="sheet-reel" hidden></div>
+  <div class="sheet-links">
+    <a id="link-reel" target="_blank" rel="noopener">▶ Рилс</a>
+    <a id="link-film" target="_blank" rel="noopener">Карточка фильма</a>
+  </div>
+  <div class="sheet-actions">
+    <button id="btn-toggle" class="btn primary"></button>
+    <button id="btn-delete" class="btn danger">Удалить</button>
+  </div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
